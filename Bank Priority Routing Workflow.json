@@ -1,0 +1,196 @@
+{
+  "name": "Bank Priority Routing Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "16a79ff4-34b1-44a0-afde-33a73372db40",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "260bd62f-ed8e-4fc2-bae7-8c9e418b58f0",
+              "name": "Customer Name",
+              "value": "Ramesh Patil",
+              "type": "string"
+            },
+            {
+              "id": "3004464c-20f9-48c6-9052-26f47413606f",
+              "name": "Amount ",
+              "value": 15000,
+              "type": "number"
+            },
+            {
+              "id": "98f881ad-81d8-4d53-b3e4-b852c04d8c27",
+              "name": "Complaint ",
+              "value": "ATM cash deducted",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "becc2fee-70c2-4e9b-9dce-01e48836cb48",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "768f456e-14e3-4c28-a7c4-03a010c09b81",
+              "leftValue": "={{$json[\"amount\"]}}",
+              "rightValue": "is greater than",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "a5521920-0de0-447c-b715-468f70b8e87a",
+              "leftValue": "10000",
+              "rightValue": "amount > 10000",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fe4969ce-8097-4ff6-a3e4-27038b502e16",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "60c6531c-f586-4f5d-be66-73326f66dfee",
+              "name": "priority",
+              "value": "High Priority",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "ab5a54c5-196a-4d31-ba89-eb9feef71c4d",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "55622806-b068-4a7e-b3ce-50dce41c8692",
+              "name": "priority",
+              "value": "Normal Priority",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        96
+      ],
+      "id": "e30ae1fa-6864-4f42-9d61-8363163ead38",
+      "name": "Edit Fields2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4609549b-046d-42e5-a7d6-04b10862b9f0",
+  "meta": {
+    "instanceId": "b24846ab6e8e14bc39502f1b7b1b60cf98b433184a402ad46e23cd4e82248ca9"
+  },
+  "id": "W03Oj5zHHL2XuV1i",
+  "tags": []
+}

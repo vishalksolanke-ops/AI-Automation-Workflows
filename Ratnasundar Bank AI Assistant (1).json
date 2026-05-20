@@ -1,0 +1,202 @@
+{
+  "name": "Ratnasundar Bank AI Assistant",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        144,
+        384
+      ],
+      "id": "b02ee2fa-3483-4f55-b756-39a41e3475ff",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1R2-NQYrZGIpAkL6MVYT4U5VBLukm-ecO7Wgm1y_5iNY",
+          "mode": "list",
+          "cachedResultName": "Untitled form (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R2-NQYrZGIpAkL6MVYT4U5VBLukm-ecO7Wgm1y_5iNY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1817774765,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R2-NQYrZGIpAkL6MVYT4U5VBLukm-ecO7Wgm1y_5iNY/edit#gid=1817774765"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        384
+      ],
+      "id": "6505bdce-7893-4b90-a6fd-676c293b5a72",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "woAwIZ2C7YnPSgLj",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an AI banking operations assistant for an Indian urban bank. Analyze customer complaints and provide priority level, fraud risk, department, next action, and short teller guidance.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{$json['Customer Name']}}, Complaint Type: {{$json['Complaint Type']}}, Issue Description: {{$json['Issue Description']}}, Amount: {{$json['Amount Involved']}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        384
+      ],
+      "id": "95b3b7f6-a4a6-438b-8aca-a32ab33c37cf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1o8jgLdpJFapRI4O6I7uNYQ0Mvpj7oXWIJWbTE_L2N8s",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o8jgLdpJFapRI4O6I7uNYQ0Mvpj7oXWIJWbTE_L2N8s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1o8jgLdpJFapRI4O6I7uNYQ0Mvpj7oXWIJWbTE_L2N8s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{$json[\"Customer Name\"]}}",
+            "Complaint Type": "={{$json[\"Complaint Type\"]}}",
+            "AI Analysis": "={{$node[\"HTTP Request\"].json[\"choices\"][0][\"message\"][\"content\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Complaint Type",
+              "displayName": "Complaint Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Analysis",
+              "displayName": "AI Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        384
+      ],
+      "id": "b384da8e-e75d-46e3-8d87-acb135cbb123",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "woAwIZ2C7YnPSgLj",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0adf49c1-4ffb-4723-8706-7f2d8fed63c6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b24846ab6e8e14bc39502f1b7b1b60cf98b433184a402ad46e23cd4e82248ca9"
+  },
+  "id": "fB1ODmIcLjKu6ch0",
+  "tags": []
+}

@@ -1,0 +1,230 @@
+{
+  "name": "AI Maintenance Complaint Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4edccc77-f262-427f-bc7b-721e472e295e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae7278bd-e7da-4475-a03e-c71b666dfc71",
+              "name": "Machine Name",
+              "value": "Tube Cutting Machine",
+              "type": "string"
+            },
+            {
+              "id": "7547271b-c423-432a-a064-6b584526cbe8",
+              "name": "Issue",
+              "value": "Machine overheating during production",
+              "type": "string"
+            },
+            {
+              "id": "ccd12a44-8efe-407f-93dd-80ea67ae0e5c",
+              "name": "Urgency",
+              "value": "High",
+              "type": "string"
+            },
+            {
+              "id": "d7806dfb-62ff-40c4-b684-00ff87353937",
+              "name": "Shift",
+              "value": "Night shift",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5807c01d-a8b4-4ba7-803c-0d8dcb094b3f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+         
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an AI maintenance assistant for a manufacturing company. Analyze machine complaints and provide priority level, risk level, recommendation, and short summary.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Machine Name: {{$json['Machine Name']}}, Issue: {{$json['Issue']}}, Urgency: {{$json['Urgency']}}, Shift: {{$json['Shift']}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0fb268c0-aa31-4f94-99ed-d2d78079e73d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NzZM4mfVocmQEelP2zNE9wCTAgd5emsZ25PM2a7lyLM",
+          "mode": "list",
+          "cachedResultName": "AI Maintenance Complaints",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NzZM4mfVocmQEelP2zNE9wCTAgd5emsZ25PM2a7lyLM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NzZM4mfVocmQEelP2zNE9wCTAgd5emsZ25PM2a7lyLM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Machine Name": "={{$node[\"Edit Fields\"].json[\"Machine Name\"]}}",
+            "Issue": "={{$node[\"Edit Fields\"].json[\"Issue\"]}}",
+            "Urgency": "={{$node[\"Edit Fields\"].json[\"Urgency\"]}}",
+            "Shift": "={{$node[\"Edit Fields\"].json[\"Shift\"]}}",
+            "AI Summary": "={{$node[\"HTTP Request\"].json[\"choices\"][0][\"message\"][\"content\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Machine Name",
+              "displayName": "Machine Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Shift",
+              "displayName": "Shift",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        0
+      ],
+      "id": "4fa234e8-1a8f-4012-96a0-9e5b05662379",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "woAwIZ2C7YnPSgLj",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3a78d229-d1d2-481c-8eed-b6ede8718900",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b24846ab6e8e14bc39502f1b7b1b60cf98b433184a402ad46e23cd4e82248ca9"
+  },
+  "id": "fG4hwpVelZ7LQ9bt",
+  "tags": []
+}

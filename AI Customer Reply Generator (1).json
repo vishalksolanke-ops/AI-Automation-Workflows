@@ -1,0 +1,154 @@
+{
+  "name": "AI Customer Reply Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "f9aa07a7-6165-4939-9445-79825f90af7d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a089aaa-4fa3-4dcb-b650-92d4f1c54bcc",
+              "name": "customer_name",
+              "value": "Rahul Sharma",
+              "type": "string"
+            },
+            {
+              "id": "ec41f981-2332-4faf-9181-9b913f623a45",
+              "name": "",
+              "value": "customer_issue",
+              "type": "string"
+            },
+            {
+              "id": "646f9225-fba4-4d32-80ac-7beed66ef078",
+              "name": "customer_email",
+              "value": "mailto:demo@gmail.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "276f2f15-bbad-4d4e-95c5-ffbdb718e30b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional customer support assistant for a bank. Generate polite and professional customer replies.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{$json['customer_name']}}, Issue: {{$json['customer_issue']}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a435daef-47f3-4e5d-a366-16764a1f9d2d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$node[\"Edit Fields\"].json[\"customer_email\"]}}",
+        "subject": "Regarding Your Banking Complaint",
+        "emailType": "text",
+        "message": "={{$node[\"HTTP Request\"].json[\"choices\"][0][\"message\"][\"content\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "6da70ee5-f5f8-4ac6-8848-080aa1453603",
+      "name": "Send a message",
+      "webhookId": "92f67af7-215d-48e1-9242-628389e004ab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sUmz7ZKSYwrcKOue",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bc5a05c2-1eb3-4d58-8bc8-71ea6a752c8b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b24846ab6e8e14bc39502f1b7b1b60cf98b433184a402ad46e23cd4e82248ca9"
+  },
+  "id": "xBhVAxcaNa8YI5N4",
+  "tags": []
+}
