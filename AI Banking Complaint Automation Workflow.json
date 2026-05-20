@@ -1,0 +1,333 @@
+{
+  "name": "AI Banking Complaint Automation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82217d86-d315-4882-b022-b1bf056159dd",
+              "name": "customer_name",
+              "value": "Rahul Sharma",
+              "type": "string"
+            },
+            {
+              "id": "c6ecf032-e98c-4be0-b5ab-f8d5c49340ba",
+              "name": "complaint_type",
+              "value": "Failed Transaction",
+              "type": "string"
+            },
+            {
+              "id": "78a6d967-3017-465f-8ad4-73abd7d543e0",
+              "name": "amount",
+              "value": 75000,
+              "type": "number"
+            },
+            {
+              "id": "728cd6bb-c9d0-43bd-9357-d9380339079d",
+              "name": "customer_email",
+              "value": "mailto:rahul@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "52b86d9e-ca9a-48e4-8b8e-12b1a6c79dd5",
+              "name": "issue_description",
+              "value": "ATM transaction failed but amount deducted",
+              "type": "string"
+            },
+            {
+              "id": "43e13a9c-1823-40b0-8341-a28558254c50",
+              "name": "urgency",
+              "value": "High",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        0
+      ],
+      "id": "0b5591a8-6327-4250-b6dd-7d7f6de4aad2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze this banking complaint and generate a professional customer support response.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        0
+      ],
+      "id": "b0b88390-0350-4b5b-ab7a-821b76772dcf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        160,
+        16
+      ],
+      "id": "dfb72de0-8443-4fd3-aa96-e5d54b1af545",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "99e630b2-323e-4bc4-8871-889730f4de69",
+              "leftValue": "={{$node[\"Edit Fields\"].json[\"amount\"]}}",
+              "rightValue": "=",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "c4b7defb-a5cc-4275-b4e0-5fefaf1e2ac9",
+              "leftValue": "50000",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9c9bfcc6-6276-4452-bafe-d29043287f5c",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        0
+      ],
+      "id": "07431d4f-694e-41bc-b38b-2b200386abc0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "vishalksolanke@gmail.com",
+        "subject": "Regarding Your Banking Complaint",
+        "emailType": "text",
+        "message": "={{$node[\"HTTP Request\"].json[\"choices\"][0][\"message\"][\"content\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        -96
+      ],
+      "id": "cb95c86d-105d-4c8b-bb8c-8e4ed2683238",
+      "name": "Send a message",
+      "webhookId": "956d3a13-4863-4640-8d4f-b7dd176c8c90",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sUmz7ZKSYwrcKOue",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1beqbG4kIysUyhTahvyUHv7pyiJ0EcYL-_TPf2l_naWY",
+          "mode": "list",
+          "cachedResultName": "Banking Complaints Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1beqbG4kIysUyhTahvyUHv7pyiJ0EcYL-_TPf2l_naWY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1beqbG4kIysUyhTahvyUHv7pyiJ0EcYL-_TPf2l_naWY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{$node[\"Edit Fields\"].json[\"customer_name\"]}}",
+            "Amount": "={{$node[\"Edit Fields\"].json[\"amount\"]}}",
+            "Priority": "High",
+            "Complaint Type": "={{$node[\"Edit Fields\"].json[\"complaint_type\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Complaint Type",
+              "displayName": "Complaint Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1200,
+        -96
+      ],
+      "id": "d14baff2-bac8-41ff-92fb-f1de79309a84",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "woAwIZ2C7YnPSgLj",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "695084f6-63fe-4ed4-9310-005ca7e321a7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b24846ab6e8e14bc39502f1b7b1b60cf98b433184a402ad46e23cd4e82248ca9"
+  },
+  "id": "NKShzW9iksqyKI6i",
+  "tags": []
+}
